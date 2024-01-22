@@ -1,0 +1,123 @@
+This PHP script is an example of how you might use the Remini API to enhance an image. 
+Here's a step-by-step explanation of the code:
+
+1.Include necessary dependencies:
+
+
+require_once 'vendor/autoload.php'; // Assuming Guzzle is installed via Composer
+
+
+This line includes the autoload file, assuming Guzzle is installed using Composer. Guzzle is a PHP HTTP client.
+
+2.Import required classes:
+
+use GuzzleHttp\Client;
+
+
+This line imports the Client class from Guzzle, which will be used to make HTTP requests.
+
+3.Set up API key and image path:
+
+$apiKey = 'YOUR_API_KEY';
+$imagePath = 'path/to/your/image.jpg';
+
+
+Replace 'YOUR_API_KEY' with your actual Remini API key. Set the $imagePath variable to the path of the image you want to enhance.
+
+4.Encode image data:
+
+
+
+$imageData = file_get_contents($imagePath);
+$base64Image = base64_encode($imageData);
+$imageMd5 = base64_encode(md5($imageData, true));
+
+
+Read the image data, encode it in base64 format, and compute the MD5 hash of the image data, then encode the MD5 hash in base64 format.
+
+5.Construct the request:
+
+$client = new Client();
+$url = 'https://api.remini.ai/v1/tasks';
+$headers = [
+    'Authorization' => 'Bearer ' . $apiKey,
+    'Content-Type' => 'application/json',
+];
+$body = [
+    'tools' => [
+        [
+            'type' => 'face_enhance',
+            'mode' => 'beautify'
+        ],
+        [
+            'type' => 'background_enhance',
+            'mode' => 'base'
+        ]
+    ],
+    'image_md5' => $imageMd5,
+    'image_content_type' => 'image/jpeg', // Adjust based on image format
+    'output_content_type' => 'image/jpeg', // Adjust if desired
+];
+
+
+
+
+Create a Guzzle client, set the API endpoint, headers, and request body. The body includes the tools to use for enhancement (face and background), image MD5 hash, and content types.
+
+
+6.Send the request:
+
+$response = $client->post($url, [
+    'headers' => $headers,
+    'json' => $body,
+]);
+
+
+
+Use the Guzzle client to send a POST request to the Remini API with the specified headers and JSON-encoded body.
+
+7.Process the response:
+
+$responseData = json_decode($response->getBody(), true);
+$taskId = $responseData['task_id'];
+
+
+
+Decode the JSON response from the API, extract the task ID, 
+and store it in the $taskId variable.
+
+8.Track task status and download enhanced image:
+The code doesn't include this part. According to the comment, 
+you need to refer to the Remini API documentation for details on how to track the task status and download the enhanced image. 
+This typically involves making additional API requests with the task ID.
+
+
+} catch (Exception $e) {
+    // Handle errors gracefully
+    echo "Error: " . $e->getMessage();
+}
+
+
+If an exception occurs during the API request, catch the exception and handle errors gracefully by printing an error message.
+
+Remember to replace 'YOUR_API_KEY' with your actual Remini API key and handle the task status tracking and image download according to the Remini API documentation.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
